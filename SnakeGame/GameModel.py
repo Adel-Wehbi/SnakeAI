@@ -14,7 +14,7 @@ class GameModel(object):
         self.gridSize = self.DEFAULT_GRID_SIZE
         self.initSnakeLen = self.DEFAULT_INIT_SNAKE_LEN
 
-    def initialize(self):
+    def init(self):
         # start with an empty grid
         self.grid = [list([self.CellContent.Empty] * self.gridSize[0]) for x in range(self.gridSize[1])]
         coord = [0,0]
