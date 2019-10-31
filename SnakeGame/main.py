@@ -1,5 +1,5 @@
-from GameModel import * 
-from GameView import *
+from model import GameModel
+from view import GameView
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
