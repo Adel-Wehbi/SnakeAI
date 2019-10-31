@@ -6,6 +6,13 @@ class GameModel(object):
         Empty = 0
         SnakeHead = 1
         SnakeBody = 2
+        Food = 3
+
+    class Direction(enum.Enum):
+        Right = 0
+        Up = 1
+        Left = 2
+        Down = 3
 
     DEFAULT_GRID_SIZE = width, length = 10, 10
     DEFAULT_INIT_SNAKE_LEN = 3
@@ -23,3 +30,4 @@ class GameModel(object):
             # lay out the snake horizontally at the top left
             coord[1] += 1
         self.grid[coord[0]][coord[1]] = self.CellContent.SnakeHead
+        self.snakeDirection = self.Direction.Right
