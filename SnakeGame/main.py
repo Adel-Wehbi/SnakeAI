@@ -8,7 +8,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 model = GameModel()
 model.init()
-pp.pprint(model.grid)
+pp.pprint(model.generateGrid())
 
 view = GameView()
 view.init()
