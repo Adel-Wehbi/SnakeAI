@@ -1,4 +1,5 @@
 import enum
+import random
 
 class GameModel():
 
@@ -8,10 +9,14 @@ class GameModel():
     def __init__(self):
         self.gridSize = self.DEFAULT_GRID_SIZE
         self.initSnakeLen = self.DEFAULT_INIT_SNAKE_LEN
+        self.score = 0
+        self.gameover = False
 
     def init(self):
         gridWidth = self.gridSize[0]
         snakeBody = []
+        self.growSnake = False
+        
         # we place the snake in the top left starting by the tail
         x = 0
         y = 0
@@ -39,8 +44,11 @@ class GameModel():
             # note that we do not handle the erroneous case of snake length being bigger than grid size
         snakeBody.reverse()
         self.snake = Snake(snakeBody, direction)
+        self.food = self.setFood()
+        head = self.snake.body[0]
+        self.pos = head[0], head[1]
 
-    def moveSnake(self, growSnake=False):
+    def moveSnake(self):
         '''Moves the snake in the Direction set in the object.
         If grow is True, the snake will grow by one block while moving.'''
         gridWidth = self.gridSize[0]
@@ -57,12 +65,20 @@ class GameModel():
             head[0] = head[0] - 1 if head[0] > 0 else gridWidth - 1
         elif self.snake.direction == Direction.Down:
             head[1] = (head[1] + 1) % gridLength
+        if self.snake.body[0] in self.snake.body[1:]:
+            self.gameover = True
         for i in range(1, len(self.snake)):
             self.snake.body[i], previousBlock = previousBlock, self.snake.body[i]
         # if snake is growing, then we add the last previousBlock as a new block
-        if growSnake:
+        if self.growSnake:
             self.snake.body.append(previousBlock)
-
+            self.growSnake = False
+        if (head[0], head[1]) == self.food:
+            self.eat()
+        self.pos = head[0], head[1]
+        print(self.pos)
+        
+        
     def generateGrid(self):
         '''Returns a grid of CellContent, that shows the position of everything on the grid.'''
         gridWidth = self.gridSize[0]
@@ -78,9 +94,24 @@ class GameModel():
                         grid[y].append(CellContent.SnakeHead)
                     else:
                         grid[y].append(CellContent.SnakeBody)
+                elif coord == self.food:
+                    grid[y].append(CellContent.Food)
                 else: 
                     grid[y].append(CellContent.Empty)
         return grid
+
+    def eat(self):
+        self.score += 1
+        self.growSnake = True
+        self.food = self.setFood()
+
+    def setFood(self):
+        while True:
+            coord = (random.randint(0, self.gridSize[1]-1), random.randint(0, self.gridSize[0]-1))
+            if coord not in self.snake:
+                break
+        return coord
+        
 
 class Snake():
    
@@ -119,4 +150,9 @@ class Direction(enum.Enum):
     Up = 1
     Left = 2
     Down = 3
+
+class GameState(enum.Enum):
+    Win = 0
+    Loss = 1
+    Continue = 2
 
