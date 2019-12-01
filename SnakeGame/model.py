@@ -76,7 +76,7 @@ class GameModel():
         if (head[0], head[1]) == self.food:
             self.eat()
         self.pos = head[0], head[1]
-        print(self.pos)
+        
         
         
     def generateGrid(self):

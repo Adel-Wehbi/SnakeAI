@@ -3,9 +3,9 @@ from model import GameModel
 from view import GameView
 from model import Direction
 from agent import Agent
-from tensorflow.python.keras.utils import to_categorical
 import numpy as np
 import time
+import random
 
 class GameController(object):
 
@@ -37,38 +37,76 @@ class GameController(object):
                         if self.model.gameover:
                             break
 
+
     def init_network(self, visualization=False):
 
         counter = 0
-        agent = Agent()
+        agent = Agent(logging=False)
+
+        print("Training...")
         
-        while counter < 100:
+        while counter < 1000:
+
+            print("//////////////Game: " + str(counter) +"//////////////")
+            
             view = GameView()
             model = GameModel()
             model.init()
-            view.render(model.generateGrid())
+            
+            if visualization:
+                view.render(model.generateGrid())
+                time.sleep(1)
 
+            action = [1, 0, 0, 0]
+            prevState = agent.getState(model)
+            model.moveSnake()
+            nextState = agent.getState(model)
+            reward = agent.setReward(model)
+            agent.save(prevState, nextState, action, reward)
+            agent.trainShortTerm(prevState, nextState, action, reward)
+
+            if visualization:
+                view.render(model.generateGrid())
+                print("////////END TURN//////////")
+                time.sleep(1)
+            
             while not model.gameover:
 
+                randomTurn = False
+
+                
                 prevState = agent.getState(model)
-                prediction = agent.model.predict(prevState.reshape((1,12)))
-                print(prediction)
-                move = Direction(np.argmax(prediction[0]))
-                print(move)
+
+                if random.randint(0, 200) <= (agent.epsilon - counter/2):
+                    action = random.randint(0, 3)
+                    randomTurn = True
+                else:
+                    prediction = agent.model.predict(prevState.reshape((1,12)))
+                    action = np.argmax(prediction[0])
+                move = Direction(action)
                 model.snake.direction = move
                 model.moveSnake()
                 reward = agent.setReward(model)
                 nextState = agent.getState(model)
+                agent.save(prevState, nextState, action, reward)
+                agent.trainShortTerm(prevState, nextState, action, reward)
                 
-
-                agent.save(prevState, move, nextState, reward, model.gameover)
                 if visualization:
                     view.render(model.generateGrid())
+                    print("Prediction: " + str((prediction if not randomTurn else "Random Move")))
+                    print("Move: " + str(move))
+                    print("Action: " + str(action))
+                    print("////////END TURN//////////")
                     time.sleep(1)
                     
+                    
+            
+            print("Game: " + str(counter) + " | Score: " + str(model.score))
             counter += 1
 
-        model.save("model.h5")
+        agent.batchTrain()
+        print("Training Complete")
+        agent.saveModel()
                                              
 
         
@@ -81,4 +119,4 @@ class GameController(object):
             
 
 if __name__ == '__main__':
-    x = GameController().init_network()
+    x = GameController().init_network(True)
