@@ -57,7 +57,7 @@ class GameController(object):
                 view.render(model.generateGrid())
                 time.sleep(1)
 
-            action = [1, 0, 0, 0]
+            action = 0
             prevState = agent.getState(model)
             model.moveSnake()
             nextState = agent.getState(model)
