@@ -9,20 +9,24 @@ from model import Direction
 import numpy as np
 import random
 import time
+import logging
+
+logging.basicConfig(format='[%(asctime)s] %(name)s %(levelname)s: %(message)s')
+logger = logging.getLogger('AGENT')
 
 class Agent():
     
-    def __init__(self, logging=True):
+    def __init__(self):
+        logger.setLevel(logging.INFO)
         self.reward = 0
         self.learningRate = 0.1 # how much we accept old vs new value
         self.gamma = 0.8 # discount factor
         self.epsilon = 100 # for exploring vs exploiting
-        self.logging = logging
         try:
-            print("Loading model from file")
+            logger.debug("Loading model from file")
             self.model = load_model("model.h5")
         except:
-            print("No file found, generating new model")
+            logger.debug("No file found, generating new model")
             self.model = self.model()
         self.memory = []
 
@@ -78,25 +82,22 @@ class Agent():
             oldStateQValues = self.get_Q(prevState)
             newStateQValues = self.get_Q(nextState)
             oldStateQValues[0][action] = reward + self.gamma * np.amax(newStateQValues)
-            
             self.model.fit(np.array([prevState]), np.array(oldStateQValues), epochs=1, verbose=0)
 
     def trainShortTerm(self, prevState, nextState, action, reward):
         oldStateQValues = self.get_Q(prevState)
         newStateQValues = self.get_Q(nextState)
-        self.log("old state Q value: ", oldStateQValues)
-        self.log("new state Q value: ", newStateQValues)
-        self.log("action: ", action)
+        logger.debug(f"old state Q values: {oldStateQValues}")
+        logger.debug(f"new state Q values: {newStateQValues}")
+        logger.debug(f"action: {action}")
         oldStateQValues[0][action] = reward + self.gamma * np.amax(newStateQValues)
-        self.log("update Q value: ", oldStateQValues)
+        logger.debug(f"updated Q values: {oldStateQValues}")
         self.model.fit(np.array([prevState]), np.array(oldStateQValues), epochs=1, verbose=0)
 
     def saveModel(self):
         self.model.save("model.h5")
 
-    def log(self, prefix, value):
-        if self.logging:
-            print(prefix + ": " + str(value))
+    
             
                 
         

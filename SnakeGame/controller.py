@@ -6,11 +6,14 @@ from agent import Agent
 import numpy as np
 import time
 import random
+import logging
+
+logging.basicConfig(format='[%(asctime)s] %(name)s %(levelname)s: %(message)s')
+logger = logging.getLogger('CONTROLLER')
 
 class GameController(object):
 
     EVENTS = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
-         
 
     def init_keyboard(self):
         self.view = GameView()
@@ -37,17 +40,18 @@ class GameController(object):
                         if self.model.gameover:
                             break
 
-
     def init_network(self, visualization=False):
 
-        counter = 0
-        agent = Agent(logging=False)
+        logger.setLevel(logging.INFO)
 
-        print("Training...")
+        counter = 0
+        agent = Agent()
+
+        logger.info("Training...")
         
         while counter < 1000:
 
-            print("//////////////Game: " + str(counter) +"//////////////")
+            logger.info("//////////////Game: " + str(counter) +"//////////////")
             
             view = GameView()
             model = GameModel()
@@ -67,14 +71,13 @@ class GameController(object):
 
             if visualization:
                 view.render(model.generateGrid())
-                print("////////END TURN//////////")
+                logging.debug("////////END TURN//////////")
                 time.sleep(1)
             
             while not model.gameover:
 
                 randomTurn = False
 
-                
                 prevState = agent.getState(model)
 
                 if random.randint(0, 200) <= (agent.epsilon - counter/2):
@@ -93,19 +96,14 @@ class GameController(object):
                 
                 if visualization:
                     view.render(model.generateGrid())
-                    print("Prediction: " + str((prediction if not randomTurn else "Random Move")))
-                    print("Move: " + str(move))
-                    print("Action: " + str(action))
-                    print("////////END TURN//////////")
+                    logger.info("////////END TURN//////////")
                     time.sleep(1)
                     
-                    
-            
-            print("Game: " + str(counter) + " | Score: " + str(model.score))
+            logger.info("Game: " + str(counter) + " | Score: " + str(model.score))
             counter += 1
 
         agent.batchTrain()
-        print("Training Complete")
+        logger.debug("Training Complete")
         agent.saveModel()
                                              
 
@@ -119,4 +117,4 @@ class GameController(object):
             
 
 if __name__ == '__main__':
-    x = GameController().init_network(True)
+    x = GameController().init_network()
