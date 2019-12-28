@@ -7,6 +7,8 @@ import numpy as np
 import time
 import random
 import logging
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 logging.basicConfig(format='[%(asctime)s] %(name)s %(levelname)s: %(message)s')
 logger = logging.getLogger('CONTROLLER')
@@ -16,7 +18,7 @@ class GameController(object):
     EVENTS = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
 
     def init_keyboard(self):
-        self.view = GameView()
+        self.view = GameView(gridDimensions=(10,10))
         self.model = GameModel()
         self.model.init()
         self.view.render(self.model.generateGrid())
@@ -39,6 +41,12 @@ class GameController(object):
                         self.view.render(self.model.generateGrid())
                         if self.model.gameover:
                             break
+                        
+    def plot_seaborn(self, array_counter, array_score):
+        sns.set(color_codes=True)
+        ax = sns.regplot(np.array([array_counter])[0], np.array([array_score])[0], color="b", x_jitter=.1, line_kws={'color':'green'})
+        ax.set(xlabel='games', ylabel='score')
+        plt.show()
 
     def init_network(self, visualization=False):
 
@@ -47,13 +55,16 @@ class GameController(object):
         counter = 0
         agent = Agent()
 
+        game_scores = []
+        game_counts = []
+
         logger.info("Training...")
         
-        while counter < 1000:
+        while counter < 150:
 
-            logger.info("//////////////Game: " + str(counter) +"//////////////")
+            logger.debug("//////////////Game: " + str(counter) +"//////////////")
             
-            view = GameView()
+            view = GameView(gridDimensions=(10,10))
             model = GameModel()
             model.init()
             
@@ -80,7 +91,9 @@ class GameController(object):
 
                 prevState = agent.getState(model)
 
-                if random.randint(0, 200) <= (agent.epsilon - counter/2):
+                agent.epsilon  = 80 - counter
+
+                if random.randint(0, 200) < agent.epsilon:
                     action = random.randint(0, 3)
                     randomTurn = True
                 else:
@@ -96,14 +109,16 @@ class GameController(object):
                 
                 if visualization:
                     view.render(model.generateGrid())
-                    logger.info("////////END TURN//////////")
+                    logger.debug("////////END TURN//////////")
                     time.sleep(1)
                     
             logger.info("Game: " + str(counter) + " | Score: " + str(model.score))
+            game_scores.append(model.score)
+            game_counts.append(counter)
             counter += 1
-
-        agent.batchTrain()
+            agent.batchTrain()
         logger.debug("Training Complete")
+        self.plot_seaborn(game_counts, game_scores)
         agent.saveModel()
                                              
 

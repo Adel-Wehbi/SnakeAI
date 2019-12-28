@@ -1,8 +1,7 @@
 import tensorflow as tf
-import tensorflow.keras
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.optimizers import Adam
+from keras.models import Sequential, load_model
+from keras.layers import Dense, Dropout
+from keras.optimizers import Adam
 import numpy as np
 from operator import add
 from model import Direction
@@ -19,24 +18,31 @@ class Agent():
     def __init__(self):
         logger.setLevel(logging.INFO)
         self.reward = 0
-        self.learningRate = 0.1 # how much we accept old vs new value
+        self.learningRate = 0.0005 # how much we accept old vs new value
         self.gamma = 0.8 # discount factor
         self.epsilon = 100 # for exploring vs exploiting
         try:
-            logger.debug("Loading model from file")
-            self.model = load_model("model.h5")
+            logger.info("Loading model from file")
+            self.model = self.model("model.h5")
         except:
-            logger.debug("No file found, generating new model")
+            logger.info("No file found, generating new model")
             self.model = self.model()
         self.memory = []
 
-    def model(self):
+    def model(self, weights=None):
         model = Sequential()
         model.add(Dense(units=120, activation='relu', input_dim=12))
+        model.add(Dropout(0.15))
+        model.add(Dense(units=120, activation='relu'))
+        model.add(Dropout(0.15))
+        model.add(Dense(units=120, activation='relu'))
         model.add(Dropout(0.15))
         model.add(Dense(units=4, activation='softmax'))
         opt = Adam(self.learningRate)
         model.compile(loss='mse', optimizer=opt)
+
+        if weights:
+            model.load_weights(weights)
         return model
 
     def setReward(self, game):
@@ -83,6 +89,7 @@ class Agent():
             newStateQValues = self.get_Q(nextState)
             oldStateQValues[0][action] = reward + self.gamma * np.amax(newStateQValues)
             self.model.fit(np.array([prevState]), np.array(oldStateQValues), epochs=1, verbose=0)
+        self.memory = []
 
     def trainShortTerm(self, prevState, nextState, action, reward):
         oldStateQValues = self.get_Q(prevState)
