@@ -1,6 +1,7 @@
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch
 from model import *
+from view import GameView
 
 
 @patch('model.Snake')
@@ -347,6 +348,24 @@ class SnakeModelTest(TestCase):
     def test_contians_invalid(self):
         coord = 3
         self.assertFalse(coord in self.snake)
+
+class GameViewtest(TestCase):
+
+    def setUp(self):
+        self.grid = [
+            [CellContent.SnakeBody, CellContent.SnakeBody, CellContent.SnakeBody, CellContent.SnakeBody],
+            [CellContent.Empty, CellContent.SnakeBody, CellContent.Empty, CellContent.Empty],
+            [CellContent.Empty, CellContent.Empty, CellContent.SnakeBody, CellContent.Empty],
+            [CellContent.SnakeBody, CellContent.Empty, CellContent.Empty, CellContent.SnakeHead]
+        ]
+
+    def test_viewIsRenderedWithoutException(self):
+        try:
+            view = GameView(gridDimensions=(4,4))
+            view.render(self.grid)
+        except:
+            self.fail("Instantiating view and rendering grid raised an exception")
+    
 
 
 if __name__ == '__main__':
