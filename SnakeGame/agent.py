@@ -15,12 +15,12 @@ logger = logging.getLogger('AGENT')
 
 class Agent():
     
-    def __init__(self):
+    def __init__(self, epsilon=100):
         logger.setLevel(logging.INFO)
         self.reward = 0
         self.learningRate = 0.0005 # how much we accept old vs new value
         self.gamma = 0.8 # discount factor
-        self.epsilon = 100 # for exploring vs exploiting
+        self.epsilon = epsilon # for exploring vs exploiting
         try:
             logger.info("Loading model from file")
             self.model = self.model("model.h5")

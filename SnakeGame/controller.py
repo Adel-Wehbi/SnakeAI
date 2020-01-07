@@ -53,7 +53,7 @@ class GameController(object):
         logger.setLevel(logging.INFO)
 
         counter = 0
-        agent = Agent()
+        agent = Agent(0)
 
         game_scores = []
         game_counts = []
@@ -91,7 +91,7 @@ class GameController(object):
 
                 prevState = agent.getState(model)
 
-                agent.epsilon  = 80 - counter
+                agent.epsilon  = -1
 
                 if random.randint(0, 200) < agent.epsilon:
                     action = random.randint(0, 3)
