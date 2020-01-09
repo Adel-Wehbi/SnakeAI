@@ -1,4 +1,4 @@
-import pygameimport pygame
+import pygame
 from model import CellContent
 import enum
 
@@ -48,4 +48,3 @@ class GameView(object):
            Offset parameter will shift it down by a percentage of the cell height'''
         return y * self.cellHeight + (self.cellHeight*offset)
         
-
