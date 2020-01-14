@@ -2,12 +2,11 @@ import enum
 
 class GameModel():
 
-    DEFAULT_GRID_SIZE = width, length = 10, 10
     DEFAULT_INIT_SNAKE_LEN = 3
 
-    def __init__(self):
-        self.gridSize = self.DEFAULT_GRID_SIZE
+    def __init__(self, gridSize):
         self.initSnakeLen = self.DEFAULT_INIT_SNAKE_LEN
+        self.gridSize = gridSize
 
     def init(self):
         gridWidth = self.gridSize[0]

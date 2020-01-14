@@ -12,7 +12,7 @@ class GameView(object):
     SNAKEBODY_OFFSET = 0.05
     FOOD_OFFSET = 0.25
 
-    def __init__(self, gridDimensions, windowSize=(540, 540)):
+    def __init__(self, gridDimensions, windowSize):
         #Grid dimensions in number of cells
         self.width = gridDimensions[0]
         self.height = gridDimensions[1]

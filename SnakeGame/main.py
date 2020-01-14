@@ -1,15 +1,5 @@
-from model import GameModel
-from view import GameView
-import pprint
+from controller import GameController
 
-pp = pprint.PrettyPrinter(indent=4)
-
-# just trying out
-
-model = GameModel()
-model.init()
-pp.pprint(model.generateGrid())
-
-view = GameView()
-view.init()
+controller = GameController(tick=0.5)
 input()
+
